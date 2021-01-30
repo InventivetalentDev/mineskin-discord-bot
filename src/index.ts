@@ -41,7 +41,16 @@ interface ErroredGenerateResponse {
 interface SuccessfulGenerateResponse {
     id: number;
     idStr: string;
+    name?: string;
     variant: string;
+    data: {
+        uuid: string;
+        texture: {
+            value: string;
+            signature: string;
+            url: string;
+        }
+    }
     timestamp: number;
     duration: number;
     account: number;
@@ -50,7 +59,7 @@ interface SuccessfulGenerateResponse {
     nextRequest?: number;
 }
 
-type GenerateResponse = (SuccessfulGenerateResponse | ErroredGenerateResponse) & { token?: string, interaction?: string; };
+type GenerateResponse = (SuccessfulGenerateResponse | ErroredGenerateResponse) & { token?: string, interaction?: string, type?: string; };
 
 function isErroredResponse(response: GenerateResponse): response is ErroredGenerateResponse {
     return (<ErroredGenerateResponse>response).error !== undefined;
@@ -110,6 +119,7 @@ class MineSkinDiscordBot {
             const res: GenerateResponse = generateResponse.data as GenerateResponse;
             res.token = item.token;
             res.interaction = item.interaction;
+            res.type = item.type;
             return res;
         } catch (err) {
             console.warn(err);
@@ -120,6 +130,7 @@ class MineSkinDiscordBot {
                 };
                 res.token = item.token;
                 res.interaction = item.interaction;
+                res.type = item.type;
                 return res;
             }
             throw err;
@@ -192,7 +203,42 @@ class MineSkinDiscordBot {
         }
         if (isSuccessfulResponse(response)) {
             await this.sendFollowupMessage(response.interaction!, response.token!, {
-                content: `Successfully generated! https://minesk.in/${ response.idStr }`
+                content: `Successfully Generated!`,
+                embeds: [
+                    {
+                        type: "rich",
+                        title: `${ response.name || '#' + response.idStr }`,
+                        url: `https://minesk.in/${ response.idStr }?utm_source=discord&utm_medium=embed&utm_campaign=mineskin_discord_bot`,
+                        fields: [
+                            {
+                                name: "Type",
+                                value: `${ response.type }`,
+                                inline: true
+                            },
+                            {
+                                name: "Variant",
+                                value: `${ response.variant }`,
+                                inline: true
+                            }
+                        ],
+                        thumbnail: {
+                            url: `https://api.mineskin.org/render/head?url=${ response.data.texture.url }`
+                        },
+                        timestamp: new Date(response.timestamp * 1000).toISOString(),
+                        footer: {
+                            text: `Generated in ${ response.duration }ms`
+                        },
+                        image: {
+                            url: `${ response.data.texture.url }`,
+                            width: 128
+                        },
+                        author: {
+                            name: "MineSkin",
+                            url: "https://mineskin.org?utm_source=discord&utm_medium=embed&utm_campaign=mineskin_discord_bot",
+                            icon_url: "https://res.cloudinary.com/inventivetalent/image/upload/brand/mineskin/mineskin-x128.png"
+                        }
+                    }
+                ]
             })
         }
     }

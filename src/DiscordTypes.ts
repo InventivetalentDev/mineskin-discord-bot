@@ -57,8 +57,46 @@ export  interface InteractionResponse {
 export interface InteractionApplicationCommandCallbackData {
     tts?: boolean;
     content: string;
-    embeds?: any[];
+    embeds?: Embed[];
     allowed_mentions?: any;
+}
+
+///
+
+export interface Embed {
+    title?: string;
+    type: "rich";
+    description?: string;
+    url?: string;
+    timestamp?: string;
+    color?: number;
+    image?: EmbedImage;
+    thumbnail?: EmbedImage;
+    footer?: EmbedFooter;
+    author?: EmbedAuthor;
+    fields?: EmbedField[];
+}
+
+export  interface EmbedAuthor {
+    name?: string;
+    url?: string;
+    icon_url?: string;
+}
+
+export interface EmbedFooter {
+    text: string;
+}
+
+export interface EmbedField {
+    name: string;
+    value: string;
+    inline?: boolean;
+}
+
+export interface EmbedImage {
+    url?: string;
+    width?: number;
+    height?: number;
 }
 
 export enum InteractionResponseType {
