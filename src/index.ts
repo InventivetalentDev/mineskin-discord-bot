@@ -284,6 +284,13 @@ class MineSkinDiscordBot {
                             if (userData["valid"]) {
                                 type = GenerateType.USER;
                                 urlOrUser = userData["uuid"];
+                            } else {
+                                return {
+                                    type: InteractionResponseType.ChannelMessageWithSource,
+                                    data: {
+                                        content: "Invalid user"
+                                    }
+                                }
                             }
                         }
                     } else { // URL
@@ -294,7 +301,12 @@ class MineSkinDiscordBot {
                                 urlOrUser = url.href;
                             }
                         } catch (ignored) {
-                            // probably invalid url
+                            return {
+                                type: InteractionResponseType.ChannelMessageWithSource,
+                                data: {
+                                    content: "Invalid url"
+                                }
+                            }
                         }
                     }
                     break;
