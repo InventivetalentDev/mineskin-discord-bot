@@ -1,3 +1,4 @@
+import * as Discord from "discord.js";
 import * as express from "express";
 import { Express, NextFunction, Request, Response } from "express";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
@@ -93,6 +94,8 @@ class MineSkinDiscordBot {
     protected static readonly mineskinQueue = new JobQueue<QueueItem, GenerateResponse>(item => {
         return MineSkinDiscordBot.doMineSkinRequest(item);
     }, 1000 * 20);
+
+    protected static discordClient: Discord.Client;
 
     protected static async doMineSkinRequest(item: QueueItem): Promise<GenerateResponse> {
         const data = {};
@@ -351,6 +354,42 @@ class MineSkinDiscordBot {
         }
     }
 
+    static async startDiscordJs() {
+        this.discordClient = new Discord.Client();
+        this.discordClient.on("ready", () => {
+            this.discordClient.user?.setPresence({
+                status: "idle",
+                activity: {
+                    name: `out for requests`,
+                    url: "https://mineskin.org",
+                    type: "WATCHING"
+                }
+            });
+            setInterval(() => {
+                if (this.mineskinQueue.size > 0 && this.discordClient.user?.presence.status !== "online") {
+                    this.discordClient.user?.setPresence({
+                        status: "online",
+                        activity: {
+                            name: `${ this.mineskinQueue.size } Skin${ this.mineskinQueue.size === 1 ? "" : "s" } Generate`,
+                            url: "https://mineskin.org",
+                            type: "WATCHING"
+                        }
+                    });
+                } else if (this.discordClient.user?.presence.status !== "idle") {
+                    this.discordClient.user?.setPresence({
+                        status: "idle",
+                        activity: {
+                            name: `out for requests`,
+                            url: "https://mineskin.org",
+                            type: "WATCHING"
+                        }
+                    });
+                }
+            }, 20 * 1000);
+        })
+        await this.discordClient.login(config.token);
+    }
+
 }
 
 const app: Express = express();
@@ -428,6 +467,9 @@ async function startExpress(): Promise<void> {
 
     console.log("Registering commands...");
     await MineSkinDiscordBot.registerCommands();
+
+    console.log("Starting discord.js client...");
+    await MineSkinDiscordBot.startDiscordJs();
 
     console.log("Starting express...");
     await startExpress();
