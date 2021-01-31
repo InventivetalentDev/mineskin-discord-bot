@@ -274,7 +274,7 @@ class MineSkinDiscordBot {
                         } else if (option.value?.length! <= 16) { // Username
                             const userResponse = await this.mineskinAxiosInstance.request({
                                 method: "GET",
-                                url: `/validate/user/${ option.value! }`,
+                                url: `/validate/name/${ option.value! }`,
                                 timeout: 10000
                             }).catch(err => {
                                 console.warn(err);
