@@ -325,16 +325,9 @@ class MineSkinDiscordBot {
             }
         }
 
-        let msg = "Generating ";
-        msg += type;
-        msg += " skin for ";
-        msg += urlOrUser;
-        msg += " with ";
-        msg += variant;
-        msg += " variant";
+        let msg = `Generating \`${ type }\` skin for \`${ urlOrUser }\` with \`${ variant }\` variant`;
         if (name) {
-            msg += " and name ";
-            msg += name;
+            msg += ` and name \`${ name }\``;
         }
 
         console.log(msg);
