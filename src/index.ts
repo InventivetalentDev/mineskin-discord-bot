@@ -185,6 +185,17 @@ class MineSkinDiscordBot {
         })
     }
 
+    static async editInitialResponse(interaction: string, token: string, response: InteractionApplicationCommandCallbackData): Promise<AxiosResponse> {
+        return await this.discordQueue.add({
+            method: "PATCH",
+            url: `/webhooks/${ config.client }/${ token }/messages/@original`,
+            data: response
+        }).catch(err => {
+            console.warn(err)
+            throw err;
+        });
+    }
+
     static async sendFollowupMessage(interaction: string, token: string, response: InteractionApplicationCommandCallbackData): Promise<AxiosResponse> {
         return await this.discordQueue.add({
             method: "POST",
@@ -199,13 +210,13 @@ class MineSkinDiscordBot {
     static async handleGenerateResponse(response: GenerateResponse): Promise<void> {
         console.log(response);
         if (isErroredResponse(response)) {
-            await this.sendFollowupMessage(response.interaction!, response.token!, {
+            await this.editInitialResponse(response.interaction!, response.token!, {
                 content: "Failed to generate. Please check your command & try again later."
             });
             return;
         }
         if (isSuccessfulResponse(response)) {
-            await this.sendFollowupMessage(response.interaction!, response.token!, {
+            await this.editInitialResponse(response.interaction!, response.token!, {
                 content: `Successfully Generated!`,
                 embeds: [
                     {
