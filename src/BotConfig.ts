@@ -6,6 +6,8 @@ export interface BotConfig {
     token: string;
     client: string;
     pubKey: string;
+
+    apiKey: string;
 }
 
 export function getConfig(): BotConfig {

@@ -117,6 +117,9 @@ class MineSkinDiscordBot {
             const generateResponse = await this.mineskinAxiosInstance.request({
                 method: "POST",
                 url: `/generate/${ item.type }`,
+                headers: {
+                    "Authorization": `Bearer ${ config.apiKey }`
+                },
                 data: data
             });
             const res: GenerateResponse = generateResponse.data as GenerateResponse;
